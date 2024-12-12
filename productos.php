@@ -41,7 +41,7 @@
                                         while($unaFila = mysqli_fetch_assoc($resultado)){
                                             echo '<tr class="alert" role="alert">
                                                     <td class="contenedor-imagen-producto">
-                                                        <img class="imagen-producto" src="'.$unaFila["imagen"].'">
+                                                        <img class="imagen-producto" src="./'.$unaFila["imagen"].'">
                                                     </td>
                                                     <td>
                                                         <div class="email">

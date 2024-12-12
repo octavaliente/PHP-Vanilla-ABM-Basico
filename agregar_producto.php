@@ -16,6 +16,7 @@
         //var_dump($_FILES["imagen_producto"]);
 
         //NECESITO LA EXTENSION DEL ARCHIVO
+        /*
         $type = pathinfo($_FILES["imagen_producto"]["name"], PATHINFO_EXTENSION);
         
         //NECESITO LA DATA BINARIA DEL ARCHIVO
@@ -23,7 +24,37 @@
         
         //TRANSFORMAR ESTO A BASE64
         $producto["imagen_producto"] = "data: image/".$type."; base64,".base64_encode($data);
+        */
+        $name = $_FILES["imagen_producto"]["name"];
         
+        $type = strtolower(pathinfo($_FILES["imagen_producto"]["name"], PATHINFO_EXTENSION));
+        if(!in_array($type, [".jpg", ".png", ".heic"])){
+            echo "extension no permitida";
+            exit;
+        }
+        
+        $size = $_FILES["imagen_producto"]["size"];
+        
+        $maxSize = 4*1024*1024; //4MB
+        if($size > $maxSize){
+            echo "archivo muy pesado";
+            exit;
+        }
+
+        $imagePath = "imagenes/".$name;
+
+        $pathTemp = $_FILES["imagen_producto"]["tmp_name"];
+        
+        //Guardar la imagen
+        if(move_uploaded_file($pathTemp, $imagePath)){
+            echo "archivo subido con exito en: ".$imagePath;
+        }
+        else {
+            echo "error al subir archivo";
+        }
+
+        $producto["imagen_producto"] = $imagePath;
+
         $conexion = conectar_base();
 
         $resultado = agregar_producto($conexion, $producto);
