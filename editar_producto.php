@@ -4,54 +4,65 @@
     require 'producto.php';
 
     if($_SERVER["REQUEST_METHOD"] === "POST"){
+        
         $id = $_POST["id"];
+        $producto = array();
+        $producto["id"] = $id;
 
-        if(!empty($_POST["nombre_producto"])){
-            $nombre = $_POST["nombre_producto"];
-        } else {
-            echo "error al no completar el nombre";
-            exit;
-        }
+        $nombre = !empty($_POST["nombre_producto"]) ? $_POST["nombre_producto"] : null;
+
+        $producto["nombre_producto"] = $nombre;
 
         $name = $_FILES["imagen_producto"]["name"];
         
-        $type = strtolower(pathinfo($_FILES["imagen_producto"]["name"], PATHINFO_EXTENSION));
-        if(!in_array($type, [".jpg", ".png", ".heic"])){
-            echo "extension no permitida";
-            exit;
-        }
-        
-        $size = $_FILES["imagen_producto"]["size"];
-        
-        $maxSize = 4*1024*1024; //4MB
-        if($size > $maxSize){
-            echo "archivo muy pesado";
-            exit;
+        if(!empty($name)){
+            $type = strtolower(pathinfo($_FILES["imagen_producto"]["name"], PATHINFO_EXTENSION));
+
+            if(!in_array($type, ["jpg", "png", "heic"])){
+                echo "extension no permitida";
+                exit;
+            }
+            
+            $size = $_FILES["imagen_producto"]["size"];
+            
+            $maxSize = 4*1024*1024; //4MB
+            if($size > $maxSize){
+                echo "archivo muy pesado";
+                exit;
+            }
+
+            $imagePath = "imagenes/".$name;
+
+            $pathTemp = $_FILES["imagen_producto"]["tmp_name"];
+            
+            
+            //Guardar la imagen
+            if(move_uploaded_file($pathTemp, $imagePath)){
+                echo "archivo subido con exito en: ".$imagePath."<br>";
+            }
+            else {
+                echo "error al subir archivo";
+            }
+            
+        } else {
+            $imagePath = null;
         }
 
-        $imagePath = "imagenes/".$name;
-
-        $pathTemp = $_FILES["imagen_producto"]["tmp_name"];
-        
-        //Guardar la imagen
-        if(move_uploaded_file($pathTemp, $imagePath)){
-            echo "archivo subido con exito en: ".$imagePath;
-        }
-        else {
-            echo "error al subir archivo";
-        }
-        
-        echo $_POST["imagen_producto"];
-
-        $producto = [
-            "nombre_producto" => $nombre,
-            "imagen_producto" => $imagen,
-            "id" => $id
-        ];
+        $producto["imagen_producto"] = $imagePath;
 
         $conexion = conectar_base();
 
         $resultado = editar_producto($conexion, $producto);
+
+        if($resultado){
+            echo "Salio bien!";
+            echo "<br>";
+            header('Location: productos.php');
+        }
+        else{
+            echo "Salio mal!";
+            echo "<br>";
+        }
 
         desconectar_base($conexion);
     } else {

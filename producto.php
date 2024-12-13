@@ -12,12 +12,25 @@
 
     function editar_producto($conexion, $producto){
         $query = "UPDATE productos ";
+
+        $contadorComa = 0;
+
+        echo sizeof($producto);
+
+        if(sizeof($producto) > 1){
+            $query = $query." SET ";
+        }
+
         if(!empty($producto["imagen_producto"])){
-            $query = $query."SET imagen = '".$producto['imagen_producto']."',";
+            $query = $query."imagen = '".$producto['imagen_producto']."'";
+            $contadorComa ++;
+        }if(!empty($producto["nombre_producto"])){
+            if($contadorComa > 0){
+                $query = $query."',";
+            }
+            $query = $query."nombre = '".$producto['nombre_producto']."'";
         }
-        if(!empty($producto["nombre_producto"])){
-            $query = $query."SET nombre = '".$producto['nombre_producto']."'";
-        }
+        
         $query = $query." WHERE id = ".$producto["id"];
         echo $query;
         return mysqli_query($conexion, $query);
